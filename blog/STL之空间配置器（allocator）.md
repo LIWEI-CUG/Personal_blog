@@ -16,9 +16,7 @@ SGI STL的配置器与众不同，它的名称为alloc而非alloctor，不接受
 
 在分析std::alloc之前，我们先要清楚C++中new（）和delete（）是怎么工作的。new算式包含俩个阶段的操作，1）调用 ::operator new配置内存；2）调用构造函数构造对象内容。同样的，delete算式也是内含俩个阶段的操作，1）调用析构函数将对象析构；2）调用 ::operator delete释放内存。为精明分工，SGI将上述俩函数的俩个步骤拆开，其中内存配置由alloc::allocate()负责，内存释放由alloc::deallocate()负责；对象构造由alloc::construct()负责，对象析构由alloc::destroy()负责。
 
-![](D:\github\Personal_blog\picture\析构和构造.png)
-
-
+![](STL之空间配置器（allocator）.assets/析构和构造.png)
 
 #### 构造和析构的基本工具：construct()和destroy()
 
@@ -73,7 +71,7 @@ destroy()有俩个版本，第一个版本接受一个指针，准备将所指�
 
 详细了解trivial destructor可参见:https://blog.csdn.net/zhiren2011/article/details/38081353
 
-![](D:\github\Personal_blog\picture\destroy()函数.png)
+![](STL之空间配置器（allocator）.assets/destroy()函数.png)
 
 #### 空间的配置和释放 std::alloc
 
@@ -126,7 +124,7 @@ private:
 }
 ```
 
-![](D:\github\Personal_blog\picture\第一级配置器.png)
+![](STL之空间配置器（allocator）.assets/第一级配置器.png)
 
 ##### 第二级配置器 __default _ alloc _ template 剖析
 
@@ -134,7 +132,7 @@ SGI第二级配置器的做法是，如果区块够大，超过128字节，则�
 
 第二级配置器维护的自由链表是一个由16个链表头指针组成的向量，每个链表节点维护一串内存区域，从下标0开始，管理的内存大小依次是8,16,24，...... 一直到下标为15管理的128字节。二配会主动将任何小额区块的内存需求量上调至8的倍数（例如客端要求30bytes，就自动调整为32bytes）。
 
-![](D:\github\Personal_blog\picture\第二级配置器自由链表.png)
+![](STL之空间配置器（allocator）.assets/第二级配置器自由链表.png)
 
 free_list是一个指针数组，数组里面的每个元素都是一个_obj类型的指针变量，free-list的节点结构如下：
 
@@ -208,7 +206,7 @@ static void *allocate(size_t n)
 }
 ```
 
-![](D:\github\Personal_blog\picture\二配allocate().png)
+![](STL之空间配置器（allocator）.assets/二配allocate().png)
 
 如果没有可用的区块，就要调用refill()重新填充。refill() 的作用主要在于重新调整填充free-list，新的空间将取自于内存池（经由chunk-allocate（）完成），缺省取20个新节点（新区块），但万一内存池空间不足，获得的节点数（区块数）可能小于20。
 
@@ -320,7 +318,7 @@ static void deallocate(void *p, size_t n)
 
 二级配置器拥有标准的接口函数deallocate() 。该函数首先判断区块的大小，大于128字节就调用一级配置器，小于128字节就找出对应的free list，将区块回收，可将其看作是某一数组元素所在链表的头部插入操作。 
 
-![](D:\github\Personal_blog\picture\区块回收.png)
+![](STL之空间配置器（allocator）.assets/区块回收.png)
 
 ### 总结
 
