@@ -12,9 +12,9 @@ SGI STL的配置器与众不同，它的名称为alloc而非alloctor，不接受
 
 ### SGI 特殊的空间配置器
 
-上面我们谈到的allocator只是基层内存配置/释放行为（也就是 ::operator new和 ::operator delete）的一层薄薄的包装，并没有考虑效率上的强化，为此SGI另辟蹊径，设计了一个专供内部使用的std::alloc空间配置器。
+上面我们谈到的allocator只是基层内存配置/释放行为（也就是 ::operator new()和 ::operator delete()）的一层薄薄的包装，并没有考虑效率上的强化，为此SGI另辟蹊径，设计了一个专供内部使用的std::alloc空间配置器。
 
-在分析std::alloc之前，我们先要清楚C++中new（）和delete（）是怎么工作的。new算式包含俩个阶段的操作，1）调用 ::operator new配置内存；2）调用构造函数构造对象内容。同样的，delete算式也是内含俩个阶段的操作，1）调用析构函数将对象析构；2）调用 ::operator delete释放内存。为精明分工，SGI将上述俩函数的俩个步骤拆开，其中内存配置由alloc::allocate()负责，内存释放由alloc::deallocate()负责；对象构造由alloc::construct()负责，对象析构由alloc::destroy()负责。
+在分析std::alloc之前，我们先要清楚C++中new（）和delete（）是怎么工作的。new算式包含俩个阶段的操作，1）调用 ::operator new()配置内存；2）调用构造函数构造对象内容。同样的，delete算式也是内含俩个阶段的操作，1）调用析构函数将对象析构；2）调用 ::operator delete()释放内存。为精明分工，SGI将上述俩函数的俩个步骤拆开，其中内存配置由alloc::allocate()负责，内存释放由alloc::deallocate()负责；对象构造由alloc::construct()负责，对象析构由alloc::destroy()负责。
 
 ![](STL之空间配置器（allocator）.assets/析构和构造.png)
 
